@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prompt Optimizer</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="head">
+      <span class="spark">✨</span>
+      <div>
+        <h1>Prompt Optimizer</h1>
+        <p class="sub">Selecciona texto → clic derecho → optimizar</p>
+      </div>
+    </header>
+
+    <main class="form">
+      <label class="field">
+        <span class="label">Proveedor de IA</span>
+        <select id="provider"></select>
+        <span class="hint" id="providerHint"></span>
+      </label>
+
+      <label class="field">
+        <span class="label-row">
+          <span class="label">API key</span>
+          <a id="keyLink" class="key-link" href="#" target="_blank" rel="noopener">Obtener clave ↗</a>
+        </span>
+        <div class="key-row">
+          <input
+            id="apiKey"
+            type="password"
+            placeholder="Pega tu API key aquí"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button id="toggleKey" type="button" class="icon-btn" title="Mostrar/ocultar">👁</button>
+        </div>
+        <span class="hint" id="keyHint"></span>
+      </label>
+
+      <label class="field">
+        <span class="label">Modelo</span>
+        <select id="model"></select>
+      </label>
+
+      <label class="field">
+        <span class="label">Estilo de optimización</span>
+        <select id="style"></select>
+        <span class="hint" id="styleHint"></span>
+      </label>
+
+      <button id="save" class="btn-primary" type="button">Guardar ajustes</button>
+      <p id="status" class="status" role="status"></p>
+    </main>
+
+    <footer class="foot">
+      <span>v0.2.0 · La clave se guarda solo en este navegador</span>
+    </footer>
+
+    <script src="styles.js"></script>
+    <script src="providers.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
