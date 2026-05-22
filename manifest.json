@@ -1,21 +1,18 @@
 {
   "manifest_version": 3,
   "name": "Prompt Optimizer",
-  "version": "0.1.0",
-  "description": "Selecciona texto en cualquier plataforma de IA y transfórmalo en un prompt optimizado y estructurado con un clic derecho.",
-  "default_locale": "es",
-  "permissions": [
-    "contextMenus",
-    "storage",
-    "scripting",
-    "notifications"
-  ],
+  "version": "0.2.0",
+  "description": "Selecciona texto en cualquier plataforma de IA y transfórmalo en un prompt optimizado y estructurado con un clic derecho. Compatible con OpenAI, Gemini, Groq y OpenRouter.",
+  "permissions": ["contextMenus", "storage", "notifications"],
   "host_permissions": [
-    "https://api.openai.com/*"
+    "https://api.openai.com/*",
+    "https://generativelanguage.googleapis.com/*",
+    "https://api.groq.com/*",
+    "https://openrouter.ai/*"
   ],
   "background": {
     "service_worker": "src/background.js",
-    "type": "module"
+    "scripts": ["src/styles.js", "src/providers.js", "src/background.js"]
   },
   "content_scripts": [
     {
@@ -41,5 +38,11 @@
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "prompt-optimizer@edhdez",
+      "strict_min_version": "121.0"
+    }
   }
 }

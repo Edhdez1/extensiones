@@ -17,28 +17,32 @@
 
     <main class="form">
       <label class="field">
-        <span class="label">API key de OpenAI</span>
+        <span class="label">Proveedor de IA</span>
+        <select id="provider"></select>
+        <span class="hint" id="providerHint"></span>
+      </label>
+
+      <label class="field">
+        <span class="label-row">
+          <span class="label">API key</span>
+          <a id="keyLink" class="key-link" href="#" target="_blank" rel="noopener">Obtener clave ↗</a>
+        </span>
         <div class="key-row">
           <input
             id="apiKey"
             type="password"
-            placeholder="sk-…"
+            placeholder="Pega tu API key aquí"
             autocomplete="off"
             spellcheck="false"
           />
           <button id="toggleKey" type="button" class="icon-btn" title="Mostrar/ocultar">👁</button>
         </div>
-        <span class="hint">Se guarda solo en este navegador (chrome.storage.local).</span>
+        <span class="hint" id="keyHint"></span>
       </label>
 
       <label class="field">
         <span class="label">Modelo</span>
-        <select id="model">
-          <option value="gpt-4o-mini">gpt-4o-mini (rápido y económico)</option>
-          <option value="gpt-4o">gpt-4o (mayor calidad)</option>
-          <option value="gpt-4.1-mini">gpt-4.1-mini</option>
-          <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
-        </select>
+        <select id="model"></select>
       </label>
 
       <label class="field">
@@ -52,9 +56,11 @@
     </main>
 
     <footer class="foot">
-      <span>v0.1.0</span>
+      <span>v0.2.0 · La clave se guarda solo en este navegador</span>
     </footer>
 
-    <script type="module" src="popup.js"></script>
+    <script src="styles.js"></script>
+    <script src="providers.js"></script>
+    <script src="popup.js"></script>
   </body>
 </html>

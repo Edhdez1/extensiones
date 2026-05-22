@@ -2,6 +2,7 @@
 // resultado de la optimización y copia el prompt al portapapeles.
 
 (() => {
+  const api = globalThis.browser || globalThis.chrome;
   const HOST_ID = "prompt-optimizer-host";
   let refs = null;
 
@@ -263,12 +264,12 @@
       </div>`;
     const optBtn = r.body.querySelector("[data-options]");
     if (optBtn) {
-      optBtn.onclick = () => chrome.runtime.sendMessage({ type: "open-options" });
+      optBtn.onclick = () => api.runtime.sendMessage({ type: "open-options" });
     }
     document.addEventListener("keydown", onKeydown);
   }
 
-  chrome.runtime.onMessage.addListener((msg) => {
+  api.runtime.onMessage.addListener((msg) => {
     if (!msg?.type) return;
     if (msg.type === "show-loading") showLoading();
     else if (msg.type === "show-result") showResult(msg.original, msg.optimized);

@@ -1,11 +1,22 @@
-import { optimizePrompt, OpenAIError } from "./openai.js";
-import { getStyle, DEFAULT_MODEL, DEFAULT_STYLE } from "./styles.js";
+// Service worker (Chrome) / event page (Firefox). En Chrome carga sus
+// dependencias con importScripts; en Firefox se cargan vía background.scripts.
+if (typeof importScripts === "function") {
+  importScripts("styles.js", "providers.js");
+}
+
+// Shim cross-browser: en Firefox `browser.*` es la API basada en promesas;
+// en Chrome MV3 `chrome.*` también devuelve promesas para las APIs que usamos.
+const api = globalThis.browser || globalThis.chrome;
+
+const { getStyle, DEFAULT_STYLE } = globalThis.PromptOptimizerStyles;
+const { callLLM, LLMError, PROVIDERS, DEFAULT_PROVIDER } =
+  globalThis.PromptOptimizerProviders;
 
 const MENU_ID = "optimize-prompt";
 
 function createMenu() {
-  chrome.contextMenus.removeAll(() => {
-    chrome.contextMenus.create({
+  api.contextMenus.removeAll(() => {
+    api.contextMenus.create({
       id: MENU_ID,
       title: "✨ Optimizar como prompt",
       contexts: ["selection"],
@@ -13,27 +24,29 @@ function createMenu() {
   });
 }
 
-chrome.runtime.onInstalled.addListener(createMenu);
-chrome.runtime.onStartup.addListener(createMenu);
+api.runtime.onInstalled.addListener(createMenu);
+api.runtime.onStartup.addListener(createMenu);
 
 async function getSettings() {
-  const { apiKey, model, style } = await chrome.storage.local.get([
-    "apiKey",
-    "model",
+  const { provider, style, models, keys } = await api.storage.local.get([
+    "provider",
     "style",
+    "models",
+    "keys",
   ]);
+  const activeProvider = provider && PROVIDERS[provider] ? provider : DEFAULT_PROVIDER;
+  const cfg = PROVIDERS[activeProvider];
   return {
-    apiKey: apiKey || "",
-    model: model || DEFAULT_MODEL,
+    provider: activeProvider,
+    model: (models && models[activeProvider]) || cfg.models[0],
+    apiKey: (keys && keys[activeProvider]) || "",
     style: style || DEFAULT_STYLE,
   };
 }
 
-// Envía un mensaje al content script de la pestaña. Devuelve false si no hay
-// receptor (la página se cargó antes de instalar la extensión, o es restringida).
 async function sendToTab(tabId, message) {
   try {
-    await chrome.tabs.sendMessage(tabId, message);
+    await api.tabs.sendMessage(tabId, message);
     return true;
   } catch {
     return false;
@@ -41,15 +54,15 @@ async function sendToTab(tabId, message) {
 }
 
 function notify(message) {
-  chrome.notifications.create({
+  api.notifications.create({
     type: "basic",
-    iconUrl: chrome.runtime.getURL("icons/icon128.png"),
+    iconUrl: api.runtime.getURL("icons/icon128.png"),
     title: "Prompt Optimizer",
     message,
   });
 }
 
-chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+api.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId !== MENU_ID || !tab?.id) return;
 
   const text = (info.selectionText || "").trim();
@@ -63,40 +76,35 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     return;
   }
 
-  const { apiKey, model, style } = await getSettings();
+  const { provider, model, apiKey, style } = await getSettings();
   if (!apiKey) {
     await sendToTab(tab.id, {
       type: "show-error",
-      message:
-        "Falta tu API key de OpenAI. Ábre los ajustes de la extensión para configurarla.",
+      message: `Falta la API key de ${PROVIDERS[provider].label}. Abre los ajustes de la extensión para configurarla.`,
     });
     return;
   }
 
   try {
-    const optimized = await optimizePrompt({
+    const optimized = await callLLM({
+      provider,
       apiKey,
       model,
       systemPrompt: getStyle(style).system,
       text,
     });
-    await sendToTab(tab.id, {
-      type: "show-result",
-      original: text,
-      optimized,
-    });
+    await sendToTab(tab.id, { type: "show-result", original: text, optimized });
   } catch (err) {
     const message =
-      err instanceof OpenAIError
+      err instanceof LLMError
         ? err.message
         : "Ocurrió un error inesperado al optimizar el texto.";
     await sendToTab(tab.id, { type: "show-error", message });
   }
 });
 
-// Permite abrir la página de ajustes desde el panel flotante.
-chrome.runtime.onMessage.addListener((msg) => {
+api.runtime.onMessage.addListener((msg) => {
   if (msg?.type === "open-options") {
-    chrome.runtime.openOptionsPage();
+    api.runtime.openOptionsPage();
   }
 });
