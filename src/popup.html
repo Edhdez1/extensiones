@@ -51,12 +51,21 @@
         <span class="hint" id="styleHint"></span>
       </label>
 
+      <label class="field">
+        <span class="label">Idioma del prompt</span>
+        <select id="promptLanguage">
+          <option value="english">Inglés (la respuesta seguirá en tu idioma)</option>
+          <option value="source">Mismo idioma del texto</option>
+        </select>
+        <span class="hint">El prompt en inglés suele dar mejores resultados; la IA responderá en el idioma en que escribiste.</span>
+      </label>
+
       <button id="save" class="btn-primary" type="button">Guardar ajustes</button>
       <p id="status" class="status" role="status"></p>
     </main>
 
     <footer class="foot">
-      <span>v0.2.0 · La clave se guarda solo en este navegador</span>
+      <span>v0.3.0 · La clave se guarda solo en este navegador</span>
     </footer>
 
     <script src="styles.js"></script>

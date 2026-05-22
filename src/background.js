@@ -8,7 +8,8 @@ if (typeof importScripts === "function") {
 // en Chrome MV3 `chrome.*` también devuelve promesas para las APIs que usamos.
 const api = globalThis.browser || globalThis.chrome;
 
-const { getStyle, DEFAULT_STYLE } = globalThis.PromptOptimizerStyles;
+const { buildSystemPrompt, DEFAULT_STYLE, DEFAULT_PROMPT_LANGUAGE } =
+  globalThis.PromptOptimizerStyles;
 const { callLLM, LLMError, PROVIDERS, DEFAULT_PROVIDER } =
   globalThis.PromptOptimizerProviders;
 
@@ -28,12 +29,14 @@ api.runtime.onInstalled.addListener(createMenu);
 api.runtime.onStartup.addListener(createMenu);
 
 async function getSettings() {
-  const { provider, style, models, keys } = await api.storage.local.get([
-    "provider",
-    "style",
-    "models",
-    "keys",
-  ]);
+  const { provider, style, promptLanguage, models, keys } =
+    await api.storage.local.get([
+      "provider",
+      "style",
+      "promptLanguage",
+      "models",
+      "keys",
+    ]);
   const activeProvider = provider && PROVIDERS[provider] ? provider : DEFAULT_PROVIDER;
   const cfg = PROVIDERS[activeProvider];
   return {
@@ -41,6 +44,7 @@ async function getSettings() {
     model: (models && models[activeProvider]) || cfg.models[0],
     apiKey: (keys && keys[activeProvider]) || "",
     style: style || DEFAULT_STYLE,
+    promptLanguage: promptLanguage || DEFAULT_PROMPT_LANGUAGE,
   };
 }
 
@@ -76,7 +80,7 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
     return;
   }
 
-  const { provider, model, apiKey, style } = await getSettings();
+  const { provider, model, apiKey, style, promptLanguage } = await getSettings();
   if (!apiKey) {
     await sendToTab(tab.id, {
       type: "show-error",
@@ -90,7 +94,7 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
       provider,
       apiKey,
       model,
-      systemPrompt: getStyle(style).system,
+      systemPrompt: buildSystemPrompt(style, promptLanguage),
       text,
     });
     await sendToTab(tab.id, { type: "show-result", original: text, optimized });

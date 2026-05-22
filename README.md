@@ -11,13 +11,19 @@ con un clic derecho, usando el proveedor de IA que elijas.
 
 - Optimización mediante menú contextual (clic derecho) sobre cualquier selección.
 - Panel flotante aislado (Shadow DOM) con el prompt resultante, opción de ver el
-  texto original y botón de copiar.
-- Copia automática al portapapeles.
+  texto original, copia automática al portapapeles y botones **Copiar** y
+  **Reemplazar**.
+- **Reemplazar in situ**: sustituye el texto seleccionado por el prompt
+  optimizado sin copiar ni pegar (cuando la selección está en un campo editable;
+  el botón se oculta en páginas de solo lectura).
+- **Prompt en inglés con respuesta en tu idioma** (configurable): el prompt se
+  genera en inglés —donde muchos modelos rinden mejor— e incluye la instrucción
+  de responder en el idioma en que escribiste.
 - **Multi-proveedor**: alterna entre varias APIs y usa una gratuita cuando se
   agote el saldo de otra.
 - Compatible con **Firefox y Chrome/Edge** con un único código base.
-- Ajustes simples: proveedor, API key (por proveedor), modelo y estilo de
-  optimización (claridad, precisión técnica, creatividad).
+- Ajustes simples: proveedor, API key (por proveedor), modelo, estilo de
+  optimización (claridad, precisión técnica, creatividad) e idioma del prompt.
 
 ## Proveedores soportados
 

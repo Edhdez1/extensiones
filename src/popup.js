@@ -1,7 +1,8 @@
 // Página de ajustes (script clásico). Usa los globales de styles.js y
 // providers.js, y el shim cross-browser para storage.
 const api = globalThis.browser || globalThis.chrome;
-const { STYLES, DEFAULT_STYLE } = globalThis.PromptOptimizerStyles;
+const { STYLES, DEFAULT_STYLE, DEFAULT_PROMPT_LANGUAGE } =
+  globalThis.PromptOptimizerStyles;
 const { PROVIDERS, DEFAULT_PROVIDER } = globalThis.PromptOptimizerProviders;
 
 const $ = (id) => document.getElementById(id);
@@ -14,6 +15,7 @@ const keyHint = $("keyHint");
 const modelSelect = $("model");
 const styleSelect = $("style");
 const styleHint = $("styleHint");
+const promptLanguageSelect = $("promptLanguage");
 const statusEl = $("status");
 
 // Estado en memoria de las claves por proveedor (se persiste al guardar).
@@ -89,6 +91,7 @@ async function load() {
   const stored = await api.storage.local.get([
     "provider",
     "style",
+    "promptLanguage",
     "models",
     "keys",
   ]);
@@ -100,6 +103,7 @@ async function load() {
       ? stored.provider
       : DEFAULT_PROVIDER;
   styleSelect.value = stored.style || DEFAULT_STYLE;
+  promptLanguageSelect.value = stored.promptLanguage || DEFAULT_PROMPT_LANGUAGE;
 
   onProviderChange();
   updateStyleHint();
@@ -121,6 +125,7 @@ async function save() {
   await api.storage.local.set({
     provider,
     style: styleSelect.value,
+    promptLanguage: promptLanguageSelect.value,
     keys,
     models,
   });
