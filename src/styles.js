@@ -8,7 +8,8 @@
 Reglas:
 - Conserva la intención y todos los datos concretos del texto original (nombres, cifras, restricciones).
 - No inventes requisitos que el usuario no expresó ni respondas la petición: solo reescribe el prompt.
-- Da contexto, define el objetivo y, cuando aporte, especifica el formato de salida esperado.
+- Da contexto, define el objetivo (resultado esperado), los criterios de éxito cuando sean relevantes y, si procede, el formato de salida esperado.
+- No añadas instrucciones de razonamiento paso a paso (como «think step by step» o «piensa paso a paso») a menos que el usuario las haya expresado; los modelos modernos con razonamiento nativo las procesan internamente sin necesidad de indicación explícita.
 - Usa un lenguaje preciso y sin ambigüedades. Mantén el mismo idioma del texto original.
 - Devuelve ÚNICAMENTE el prompt optimizado, sin comillas, sin explicaciones ni encabezados como "Prompt:".`;
 
@@ -27,7 +28,7 @@ Prioriza la CLARIDAD: estructura la petición en pasos o secciones lógicas, eli
         "Optimiza para tareas técnicas con requisitos y restricciones explícitos.",
       system: `${BASE_RULES}
 
-Prioriza la PRECISIÓN TÉCNICA: define entradas, salidas, restricciones y criterios de aceptación. Usa terminología exacta y enumera requisitos verificables.`,
+Prioriza la PRECISIÓN TÉCNICA: define entradas, salidas, restricciones, criterios de aceptación y el resultado concreto esperado (outcome). Usa terminología exacta, enumera requisitos verificables y especifica cómo se evaluará el éxito de la solución.`,
     },
     creative: {
       label: "Creatividad",
