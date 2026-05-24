@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Promptisma — Optimizador de Prompts",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "description": "Optimiza cualquier texto como prompt con un clic derecho. Funciona gratis sin clave; compatible con OpenAI, Gemini, Groq y más.",
   "permissions": ["contextMenus", "storage", "notifications"],
   "host_permissions": [
@@ -13,7 +13,7 @@
   ],
   "background": {
     "service_worker": "src/background.js",
-    "scripts": ["src/styles.js", "src/providers.js", "src/background.js"]
+    "scripts": ["src/styles.js", "src/providers.js", "src/pro.js", "src/background.js"]
   },
   "content_scripts": [
     {

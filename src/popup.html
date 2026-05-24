@@ -62,14 +62,36 @@
 
       <button id="save" class="btn-primary" type="button">Guardar ajustes</button>
       <p id="status" class="status" role="status"></p>
+
+      <section class="pro" id="proSection">
+        <div class="label-row">
+          <span class="label">Promptisma Pro</span>
+          <span class="pro-badge" id="proBadge">Free</span>
+        </div>
+        <p class="hint">Desbloquea el historial de prompts (y, próximamente, plantillas y prompt por modelo destino).</p>
+        <button id="upgrade" class="btn-primary" type="button">Actualizar a Pro</button>
+        <label class="dev-toggle">
+          <input type="checkbox" id="proToggle" /> Activar Pro (modo prueba)
+        </label>
+      </section>
+
+      <section class="history" id="historySection" hidden>
+        <div class="label-row">
+          <span class="label">Historial de prompts</span>
+          <button id="clearHistory" class="link-btn" type="button">Borrar todo</button>
+        </div>
+        <input id="historySearch" type="search" placeholder="Buscar en el historial…" autocomplete="off" />
+        <div id="historyList" class="history-list"></div>
+      </section>
     </main>
 
     <footer class="foot">
-      <span>v0.4.2 · La clave se guarda solo en este navegador</span>
+      <span>v0.5.0 · La clave se guarda solo en este navegador</span>
     </footer>
 
     <script src="styles.js"></script>
     <script src="providers.js"></script>
+    <script src="pro.js"></script>
     <script src="popup.js"></script>
   </body>
 </html>

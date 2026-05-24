@@ -10,7 +10,7 @@ import json, os, zipfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = [
-    "src/styles.js", "src/providers.js", "src/background.js",
+    "src/styles.js", "src/providers.js", "src/pro.js", "src/background.js",
     "src/content.js", "src/popup.html", "src/popup.css", "src/popup.js",
 ]
 ICONS = ["icons/icon16.png", "icons/icon48.png", "icons/icon128.png"]
@@ -33,7 +33,7 @@ def main():
     chrome["background"] = {"service_worker": "src/background.js"}
 
     firefox = json.loads(json.dumps(base))
-    firefox["background"] = {"scripts": ["src/styles.js", "src/providers.js", "src/background.js"]}
+    firefox["background"] = {"scripts": ["src/styles.js", "src/providers.js", "src/pro.js", "src/background.js"]}
 
     build("chrome", chrome)
     build("firefox", firefox)

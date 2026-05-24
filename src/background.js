@@ -1,7 +1,7 @@
 // Service worker (Chrome) / event page (Firefox). En Chrome carga sus
 // dependencias con importScripts; en Firefox se cargan vía background.scripts.
 if (typeof importScripts === "function") {
-  importScripts("styles.js", "providers.js");
+  importScripts("styles.js", "providers.js", "pro.js");
 }
 
 // Shim cross-browser: en Firefox `browser.*` es la API basada en promesas;
@@ -99,6 +99,12 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
       text,
     });
     await sendToTab(tab.id, { type: "show-result", original: text, optimized });
+    await globalThis.PromptOptimizerPro.addToHistory({
+      original: text,
+      optimized,
+      style,
+      provider,
+    });
   } catch (err) {
     const message =
       err instanceof LLMError
