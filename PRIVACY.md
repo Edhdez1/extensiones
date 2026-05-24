@@ -63,4 +63,4 @@ es relevante, se reflejará en las notas de la versión de la extensión.
 
 ## Contacto
 
-Para dudas sobre privacidad: **edwarmejia23@gmail.com**
+Para dudas sobre privacidad: **Twotortillas0@gmail.com**
