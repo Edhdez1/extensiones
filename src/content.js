@@ -314,12 +314,6 @@
     setTimeout(() => refs?.status.classList.remove("show"), 1800);
   }
 
-  function escapeHtml(s) {
-    return s.replace(/[&<>"']/g, (c) =>
-      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])
-    );
-  }
-
   function showLoading() {
     const r = ensurePanel();
     r.footer.hidden = true;
@@ -370,10 +364,11 @@
     const r = ensurePanel();
     r.footer.hidden = true;
     r.body.innerHTML = `
-      <div class="error">${escapeHtml(message)}</div>
+      <div class="error"></div>
       <div class="footer-actions" style="margin-top:12px;display:flex;gap:8px;">
         <button class="btn btn-primary" data-options>Abrir ajustes</button>
       </div>`;
+    r.body.querySelector(".error").textContent = message;
     const optBtn = r.body.querySelector("[data-options]");
     if (optBtn) {
       optBtn.onclick = () => api.runtime.sendMessage({ type: "open-options" });
