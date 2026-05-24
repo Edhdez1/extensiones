@@ -6,6 +6,100 @@
   const HOST_ID = "prompt-optimizer-host";
   let refs = null;
 
+  // Selección capturada en el momento del clic derecho, para poder reemplazarla
+  // luego con el prompt optimizado.
+  let lastSelection = null;
+
+  function isElementEditable(node) {
+    const el = node?.nodeType === 1 ? node : node?.parentElement;
+    return (
+      !!el &&
+      (el.isContentEditable ||
+        !!el.closest?.("[contenteditable=''],[contenteditable='true']"))
+    );
+  }
+
+  function captureSelection() {
+    try {
+      const el = document.activeElement;
+      if (el && (el.tagName === "TEXTAREA" || el.tagName === "INPUT")) {
+        const start = el.selectionStart;
+        const end = el.selectionEnd;
+        if (typeof start === "number" && typeof end === "number") {
+          lastSelection = { kind: "field", el, start, end };
+          return;
+        }
+      }
+    } catch {
+      // algunos tipos de <input> no exponen selección
+    }
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+      const range = sel.getRangeAt(0);
+      lastSelection = {
+        kind: "range",
+        range: range.cloneRange(),
+        editable: isElementEditable(range.commonAncestorContainer),
+      };
+      return;
+    }
+    lastSelection = null;
+  }
+
+  document.addEventListener("contextmenu", captureSelection, true);
+
+  function canReplace() {
+    if (!lastSelection) return false;
+    if (lastSelection.kind === "field") return document.contains(lastSelection.el);
+    return (
+      lastSelection.editable &&
+      document.contains(lastSelection.range.commonAncestorContainer)
+    );
+  }
+
+  // Reemplaza la selección original con `text`. Usa el setter nativo para que
+  // los frameworks (React, etc.) detecten el cambio en campos controlados.
+  function replaceSelection(text) {
+    try {
+      if (lastSelection.kind === "field") {
+        const { el, start, end } = lastSelection;
+        const proto =
+          el.tagName === "TEXTAREA"
+            ? window.HTMLTextAreaElement.prototype
+            : window.HTMLInputElement.prototype;
+        const setter = Object.getOwnPropertyDescriptor(proto, "value")?.set;
+        const next = el.value.slice(0, start) + text + el.value.slice(end);
+        if (setter) setter.call(el, next);
+        else el.value = next;
+        const caret = start + text.length;
+        el.focus();
+        try {
+          el.setSelectionRange(caret, caret);
+        } catch {
+          // campo sin soporte de rango
+        }
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+        return true;
+      }
+      const range = lastSelection.range;
+      range.deleteContents();
+      const node = document.createTextNode(text);
+      range.insertNode(node);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      const after = document.createRange();
+      after.setStartAfter(node);
+      after.collapse(true);
+      sel.addRange(after);
+      node.parentElement
+        ?.closest("[contenteditable]")
+        ?.dispatchEvent(new Event("input", { bubbles: true }));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   const STYLES = `
     :host { all: initial; }
     .panel {
@@ -144,7 +238,8 @@
       </div>
       <div class="body" data-body></div>
       <div class="footer" data-footer hidden>
-        <span class="status" data-status>Copiado al portapapeles</span>
+        <span class="status" data-status></span>
+        <button class="btn btn-primary" data-replace hidden>Reemplazar</button>
         <button class="btn btn-ghost" data-copy>Copiar</button>
       </div>
     `;
@@ -158,6 +253,7 @@
       footer: panel.querySelector("[data-footer]"),
       status: panel.querySelector("[data-status]"),
       copyBtn: panel.querySelector("[data-copy]"),
+      replaceBtn: panel.querySelector("[data-replace]"),
       header: panel.querySelector("[data-drag]"),
     };
 
@@ -211,16 +307,11 @@
     }
   }
 
-  function flashStatus() {
+  function flashStatus(message) {
     if (!refs) return;
+    refs.status.textContent = message;
     refs.status.classList.add("show");
     setTimeout(() => refs?.status.classList.remove("show"), 1800);
-  }
-
-  function escapeHtml(s) {
-    return s.replace(/[&<>"']/g, (c) =>
-      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])
-    );
   }
 
   function showLoading() {
@@ -247,21 +338,37 @@
     r.footer.hidden = false;
 
     r.copyBtn.onclick = async () => {
-      if (await copyText(optimized)) flashStatus();
+      if (await copyText(optimized)) flashStatus("Copiado al portapapeles ✓");
     };
 
+    // El botón "Reemplazar" solo aparece si la selección estaba en un campo editable.
+    if (canReplace()) {
+      r.replaceBtn.hidden = false;
+      r.replaceBtn.onclick = () => {
+        if (replaceSelection(optimized)) {
+          flashStatus("Texto reemplazado ✓");
+          setTimeout(remove, 650);
+        } else {
+          flashStatus("No se pudo reemplazar; usa Copiar");
+        }
+      };
+    } else {
+      r.replaceBtn.hidden = true;
+    }
+
     // Intento de copia automática (puede fallar si el navegador exige gesto reciente).
-    if (await copyText(optimized)) flashStatus();
+    if (await copyText(optimized)) flashStatus("Copiado al portapapeles ✓");
   }
 
   function showError(message) {
     const r = ensurePanel();
     r.footer.hidden = true;
     r.body.innerHTML = `
-      <div class="error">${escapeHtml(message)}</div>
+      <div class="error"></div>
       <div class="footer-actions" style="margin-top:12px;display:flex;gap:8px;">
         <button class="btn btn-primary" data-options>Abrir ajustes</button>
       </div>`;
+    r.body.querySelector(".error").textContent = message;
     const optBtn = r.body.querySelector("[data-options]");
     if (optBtn) {
       optBtn.onclick = () => api.runtime.sendMessage({ type: "open-options" });

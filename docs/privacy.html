@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Política de Privacidad — Promptisma</title>
+<style>
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       color:#1c1830;background:#f6f5fb;line-height:1.65}
+  .wrap{max-width:760px;margin:0 auto;padding:40px 22px 70px}
+  header{background:linear-gradient(135deg,#6d5ef8,#8b5cf6);color:#fff;border-radius:16px;padding:30px 28px;margin-bottom:26px}
+  header h1{margin:0;font-size:25px}
+  header p{margin:6px 0 0;opacity:.95;font-size:14px}
+  h2{font-size:18px;margin:28px 0 8px;border-bottom:2px solid #e7e4f3;padding-bottom:6px}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid #e7e4f3;vertical-align:top}
+  th{background:#faf9ff}
+  code{background:#f0eefb;padding:2px 6px;border-radius:5px;font-size:13px}
+  a{color:#6d5ef8}
+  .note{border-left:4px solid #6d5ef8;background:#f4f2ff;padding:12px 16px;border-radius:0 8px 8px 0;font-size:14px}
+  footer{margin-top:30px;color:#6b6680;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Política de Privacidad — Promptisma</h1>
+    <p>Última actualización: 24 de mayo de 2026</p>
+  </header>
+
+  <p>Promptisma es una extensión de navegador que transforma el texto que seleccionas en un
+  prompt optimizado, usando el proveedor de IA que tú elijas. Esta política explica qué datos
+  se manejan y cómo.</p>
+
+  <div class="note">
+    <strong>Resumen:</strong> no tenemos servidores propios, no recopilamos ni vendemos tus datos,
+    y no usamos analítica ni rastreadores. Tus claves de API y ajustes se guardan
+    <strong>solo en tu navegador</strong>.
+  </div>
+
+  <h2>Qué datos se procesan</h2>
+  <table>
+    <thead><tr><th>Dato</th><th>Dónde se guarda</th><th>A quién se envía</th></tr></thead>
+    <tbody>
+      <tr><td>Texto que seleccionas y optimizas</td><td>No se almacena</td><td>Solo al proveedor de IA activo, para generar el prompt</td></tr>
+      <tr><td>API keys de los proveedores</td><td>Solo en tu navegador (<code>storage.local</code>)</td><td>Solo al proveedor correspondiente, como cabecera de autenticación</td></tr>
+      <tr><td>Ajustes (proveedor, modelo, estilo, idioma)</td><td>Solo en tu navegador (<code>storage.local</code>)</td><td>A nadie</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Envío de texto a proveedores de IA</h2>
+  <p>Al optimizar, el texto se envía <strong>directamente desde tu navegador</strong> al proveedor
+  que hayas seleccionado; la extensión no intermedia ese tráfico con ningún servidor propio. El
+  proveedor por defecto es <strong>Pollinations</strong> (gratuito, sin clave). El tratamiento de
+  datos de cada proveedor se rige por su propia política:</p>
+  <ul>
+    <li>Pollinations — <a href="https://pollinations.ai">pollinations.ai</a></li>
+    <li>OpenAI — <a href="https://openai.com/policies/privacy-policy">openai.com/policies/privacy-policy</a></li>
+    <li>Google Gemini — <a href="https://policies.google.com/privacy">policies.google.com/privacy</a></li>
+    <li>Groq — <a href="https://groq.com/privacy-policy">groq.com/privacy-policy</a></li>
+    <li>OpenRouter — <a href="https://openrouter.ai/privacy">openrouter.ai/privacy</a></li>
+  </ul>
+  <p>Recomendamos no seleccionar ni enviar información sensible o confidencial.</p>
+
+  <h2>Permisos de la extensión</h2>
+  <table>
+    <tbody>
+      <tr><td><code>contextMenus</code></td><td>Añade la opción "Optimizar como prompt" al menú del clic derecho.</td></tr>
+      <tr><td><code>storage</code></td><td>Guarda tus ajustes y claves localmente.</td></tr>
+      <tr><td><code>notifications</code></td><td>Muestra avisos breves (p. ej. recargar la página).</td></tr>
+      <tr><td>Acceso a las páginas</td><td>Necesario para leer el texto que seleccionas y mostrar el panel. El texto solo se procesa cuando tú activas la opción.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Control del usuario</h2>
+  <p>Puedes borrar tus claves y ajustes desde la página de ajustes de la extensión, o
+  desinstalándola (lo que elimina todo lo guardado en <code>storage.local</code>).</p>
+
+  <h2>Contacto</h2>
+  <p>Para dudas sobre privacidad: <a href="mailto:Twotortillas0@gmail.com">Twotortillas0@gmail.com</a></p>
+
+  <footer>Promptisma · Esta política puede actualizarse; los cambios relevantes se reflejarán en las notas de versión.</footer>
+</div>
+</body>
+</html>

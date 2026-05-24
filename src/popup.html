@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Prompt Optimizer</title>
+    <title>Promptisma</title>
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
     <header class="head">
       <span class="spark">✨</span>
       <div>
-        <h1>Prompt Optimizer</h1>
+        <h1>Promptisma</h1>
         <p class="sub">Selecciona texto → clic derecho → optimizar</p>
       </div>
     </header>
@@ -22,7 +22,7 @@
         <span class="hint" id="providerHint"></span>
       </label>
 
-      <label class="field">
+      <label class="field" id="keyField">
         <span class="label-row">
           <span class="label">API key</span>
           <a id="keyLink" class="key-link" href="#" target="_blank" rel="noopener">Obtener clave ↗</a>
@@ -51,16 +51,47 @@
         <span class="hint" id="styleHint"></span>
       </label>
 
+      <label class="field">
+        <span class="label">Idioma del prompt</span>
+        <select id="promptLanguage">
+          <option value="english">Inglés (la respuesta seguirá en tu idioma)</option>
+          <option value="source">Mismo idioma del texto</option>
+        </select>
+        <span class="hint">El prompt en inglés suele dar mejores resultados; la IA responderá en el idioma en que escribiste.</span>
+      </label>
+
       <button id="save" class="btn-primary" type="button">Guardar ajustes</button>
       <p id="status" class="status" role="status"></p>
+
+      <section class="pro" id="proSection">
+        <div class="label-row">
+          <span class="label">Promptisma Pro</span>
+          <span class="pro-badge" id="proBadge">Free</span>
+        </div>
+        <p class="hint">Desbloquea el historial de prompts (y, próximamente, plantillas y prompt por modelo destino).</p>
+        <button id="upgrade" class="btn-primary" type="button">Actualizar a Pro</button>
+        <label class="dev-toggle">
+          <input type="checkbox" id="proToggle" /> Activar Pro (modo prueba)
+        </label>
+      </section>
+
+      <section class="history" id="historySection" hidden>
+        <div class="label-row">
+          <span class="label">Historial de prompts</span>
+          <button id="clearHistory" class="link-btn" type="button">Borrar todo</button>
+        </div>
+        <input id="historySearch" type="search" placeholder="Buscar en el historial…" autocomplete="off" />
+        <div id="historyList" class="history-list"></div>
+      </section>
     </main>
 
     <footer class="foot">
-      <span>v0.2.0 · La clave se guarda solo en este navegador</span>
+      <span>v0.5.0 · La clave se guarda solo en este navegador</span>
     </footer>
 
     <script src="styles.js"></script>
     <script src="providers.js"></script>
+    <script src="pro.js"></script>
     <script src="popup.js"></script>
   </body>
 </html>

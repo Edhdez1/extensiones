@@ -1,14 +1,15 @@
 // Service worker (Chrome) / event page (Firefox). En Chrome carga sus
 // dependencias con importScripts; en Firefox se cargan vía background.scripts.
 if (typeof importScripts === "function") {
-  importScripts("styles.js", "providers.js");
+  importScripts("styles.js", "providers.js", "pro.js");
 }
 
 // Shim cross-browser: en Firefox `browser.*` es la API basada en promesas;
 // en Chrome MV3 `chrome.*` también devuelve promesas para las APIs que usamos.
 const api = globalThis.browser || globalThis.chrome;
 
-const { getStyle, DEFAULT_STYLE } = globalThis.PromptOptimizerStyles;
+const { buildSystemPrompt, DEFAULT_STYLE, DEFAULT_PROMPT_LANGUAGE } =
+  globalThis.PromptOptimizerStyles;
 const { callLLM, LLMError, PROVIDERS, DEFAULT_PROVIDER } =
   globalThis.PromptOptimizerProviders;
 
@@ -28,19 +29,23 @@ api.runtime.onInstalled.addListener(createMenu);
 api.runtime.onStartup.addListener(createMenu);
 
 async function getSettings() {
-  const { provider, style, models, keys } = await api.storage.local.get([
-    "provider",
-    "style",
-    "models",
-    "keys",
-  ]);
+  const { provider, style, promptLanguage, models, keys } =
+    await api.storage.local.get([
+      "provider",
+      "style",
+      "promptLanguage",
+      "models",
+      "keys",
+    ]);
   const activeProvider = provider && PROVIDERS[provider] ? provider : DEFAULT_PROVIDER;
   const cfg = PROVIDERS[activeProvider];
+  const storedModel = models && models[activeProvider];
   return {
     provider: activeProvider,
-    model: (models && models[activeProvider]) || cfg.models[0],
+    model: cfg.models.includes(storedModel) ? storedModel : cfg.models[0],
     apiKey: (keys && keys[activeProvider]) || "",
     style: style || DEFAULT_STYLE,
+    promptLanguage: promptLanguage || DEFAULT_PROMPT_LANGUAGE,
   };
 }
 
@@ -57,7 +62,7 @@ function notify(message) {
   api.notifications.create({
     type: "basic",
     iconUrl: api.runtime.getURL("icons/icon128.png"),
-    title: "Prompt Optimizer",
+    title: "Promptisma",
     message,
   });
 }
@@ -71,13 +76,13 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
   const reachable = await sendToTab(tab.id, { type: "show-loading" });
   if (!reachable) {
     notify(
-      "Recarga la página para activar Prompt Optimizer y vuelve a intentarlo."
+      "Recarga la página para activar Promptisma y vuelve a intentarlo."
     );
     return;
   }
 
-  const { provider, model, apiKey, style } = await getSettings();
-  if (!apiKey) {
+  const { provider, model, apiKey, style, promptLanguage } = await getSettings();
+  if (PROVIDERS[provider].needsKey !== false && !apiKey) {
     await sendToTab(tab.id, {
       type: "show-error",
       message: `Falta la API key de ${PROVIDERS[provider].label}. Abre los ajustes de la extensión para configurarla.`,
@@ -90,10 +95,16 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
       provider,
       apiKey,
       model,
-      systemPrompt: getStyle(style).system,
+      systemPrompt: buildSystemPrompt(style, promptLanguage),
       text,
     });
     await sendToTab(tab.id, { type: "show-result", original: text, optimized });
+    await globalThis.PromptOptimizerPro.addToHistory({
+      original: text,
+      optimized,
+      style,
+      provider,
+    });
   } catch (err) {
     const message =
       err instanceof LLMError
