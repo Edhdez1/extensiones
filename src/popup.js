@@ -9,6 +9,7 @@ const $ = (id) => document.getElementById(id);
 
 const providerSelect = $("provider");
 const providerHint = $("providerHint");
+const keyField = $("keyField");
 const apiKeyInput = $("apiKey");
 const keyLink = $("keyLink");
 const keyHint = $("keyHint");
@@ -65,10 +66,19 @@ function onProviderChange() {
     selectedModel
   );
 
-  apiKeyInput.value = keys[id] || "";
-  keyHint.textContent = cfg.keyHint;
-  keyLink.href = cfg.keyUrl;
-  providerHint.textContent = cfg.free
+  const keyless = cfg.needsKey === false;
+  keyField.style.display = keyless ? "none" : "";
+  if (keyless) {
+    apiKeyInput.value = "";
+    keys[id] = "";
+  } else {
+    apiKeyInput.value = keys[id] || "";
+    keyHint.textContent = cfg.keyHint;
+    keyLink.href = cfg.keyUrl;
+  }
+  providerHint.textContent = keyless
+    ? "Funciona sin clave. Servicio gratuito de terceros: calidad y disponibilidad variables."
+    : cfg.free
     ? "Tiene capa gratuita: úsalo cuando se agote el saldo de otro proveedor."
     : "Requiere saldo de pago en tu cuenta.";
 }

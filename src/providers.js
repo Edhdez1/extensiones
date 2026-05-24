@@ -3,7 +3,7 @@
 // Permite alternar de proveedor (p. ej. usar uno gratuito cuando se agota
 // el saldo de OpenAI) sin cambiar el resto de la extensión.
 (function (root) {
-  const DEFAULT_PROVIDER = "openai";
+  const DEFAULT_PROVIDER = "pollinations";
 
   class LLMError extends Error {
     constructor(message, { status } = {}) {
@@ -18,13 +18,15 @@
   function openAICompatible({ baseUrl, extraHeaders }) {
     return {
       buildRequest({ apiKey, model, systemPrompt, text }) {
+        const headers = {
+          "Content-Type": "application/json",
+          ...(extraHeaders || {}),
+        };
+        // Algunos proveedores (p. ej. Pollinations) no requieren clave.
+        if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
         return {
           url: `${baseUrl}/chat/completions`,
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
-            ...(extraHeaders || {}),
-          },
+          headers,
           body: {
             model,
             temperature: 0.4,
@@ -35,11 +37,32 @@
           },
         };
       },
-      parse(data) {
-        return data?.choices?.[0]?.message?.content?.trim();
+      parse(raw) {
+        return JSON.parse(raw)?.choices?.[0]?.message?.content?.trim();
       },
     };
   }
+
+  // Adaptador para Pollinations (gratis, sin clave). El endpoint "legacy"
+  // acepta un cuerpo estilo OpenAI y devuelve TEXTO PLANO (no JSON).
+  const pollinationsAdapter = {
+    buildRequest({ model, systemPrompt, text }) {
+      return {
+        url: "https://text.pollinations.ai/",
+        headers: { "Content-Type": "application/json" },
+        body: {
+          model,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: text },
+          ],
+        },
+      };
+    },
+    parse(raw) {
+      return raw?.trim();
+    },
+  };
 
   // Adaptador para la API generateContent de Google Gemini.
   const geminiAdapter = {
@@ -57,15 +80,25 @@
         },
       };
     },
-    parse(data) {
-      return data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    parse(raw) {
+      return JSON.parse(raw)?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
     },
   };
 
   const PROVIDERS = {
+    pollinations: {
+      label: "Pollinations",
+      free: true,
+      needsKey: false,
+      keyHint: "No necesita clave.",
+      keyUrl: "https://pollinations.ai",
+      models: ["openai"],
+      adapter: pollinationsAdapter,
+    },
     openai: {
       label: "OpenAI",
       free: false,
+      needsKey: true,
       keyHint: "Empieza por 'sk-'. Crea una en platform.openai.com/api-keys",
       keyUrl: "https://platform.openai.com/api-keys",
       models: ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini"],
@@ -74,6 +107,7 @@
     gemini: {
       label: "Google Gemini",
       free: true,
+      needsKey: true,
       keyHint: "API key gratuita en aistudio.google.com/apikey",
       keyUrl: "https://aistudio.google.com/apikey",
       models: ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-pro"],
@@ -82,6 +116,7 @@
     groq: {
       label: "Groq",
       free: true,
+      needsKey: true,
       keyHint: "API key gratuita en console.groq.com/keys",
       keyUrl: "https://console.groq.com/keys",
       models: [
@@ -94,6 +129,7 @@
     openrouter: {
       label: "OpenRouter",
       free: true,
+      needsKey: true,
       keyHint: "API key en openrouter.ai/keys (incluye modelos :free)",
       keyUrl: "https://openrouter.ai/keys",
       models: [
@@ -130,23 +166,31 @@
       );
     }
 
+    // Los proveedores devuelven JSON, pero Pollinations responde texto plano:
+    // leemos siempre como texto y cada adaptador lo interpreta.
+    const raw = await response.text();
+
     if (!response.ok) {
       let detail = "";
       try {
-        const data = await response.json();
-        detail = data?.error?.message || "";
+        detail = JSON.parse(raw)?.error?.message || "";
       } catch {
-        // respuesta sin cuerpo JSON
+        detail = raw && raw.length < 200 ? raw : "";
       }
-      if (response.status === 401 || response.status === 403) {
+      const keyless = cfg.needsKey === false;
+      if (response.status === 401 || response.status === 403 || response.status === 402) {
         throw new LLMError(
-          `API key inválida o sin permisos para ${cfg.label}. Revísala en los ajustes.`,
+          keyless
+            ? `El servicio gratuito ${cfg.label} requiere clave o está restringido ahora. Prueba con otro proveedor en los ajustes.`
+            : `API key inválida o sin permisos para ${cfg.label}. Revísala en los ajustes.`,
           { status: response.status }
         );
       }
       if (response.status === 429) {
         throw new LLMError(
-          `Límite o saldo agotado en ${cfg.label}. Prueba con otro proveedor en los ajustes.`,
+          keyless
+            ? `El servicio gratuito ${cfg.label} está saturado. Prueba de nuevo o cambia de proveedor en los ajustes.`
+            : `Límite o saldo agotado en ${cfg.label}. Prueba con otro proveedor en los ajustes.`,
           { status: 429 }
         );
       }
@@ -156,8 +200,12 @@
       );
     }
 
-    const data = await response.json();
-    const out = cfg.adapter.parse(data);
+    let out;
+    try {
+      out = cfg.adapter.parse(raw);
+    } catch {
+      out = "";
+    }
     if (!out) throw new LLMError(`${cfg.label} devolvió una respuesta vacía.`);
     return out;
   }

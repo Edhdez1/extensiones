@@ -82,7 +82,7 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
   }
 
   const { provider, model, apiKey, style, promptLanguage } = await getSettings();
-  if (!apiKey) {
+  if (PROVIDERS[provider].needsKey !== false && !apiKey) {
     await sendToTab(tab.id, {
       type: "show-error",
       message: `Falta la API key de ${PROVIDERS[provider].label}. Abre los ajustes de la extensión para configurarla.`,

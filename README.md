@@ -27,15 +27,19 @@ con un clic derecho, usando el proveedor de IA que elijas.
 
 ## Proveedores soportados
 
-| Proveedor | Capa gratuita | Dónde obtener la clave |
+| Proveedor | Capa gratuita | Clave |
 |---|---|---|
+| **Pollinations** (por defecto) | **Sí — sin clave** | No requiere |
 | OpenAI | No (de pago) | platform.openai.com/api-keys |
 | Google Gemini | **Sí** | aistudio.google.com/apikey |
 | Groq | **Sí** | console.groq.com/keys |
 | OpenRouter | **Sí** (modelos `:free`) | openrouter.ai/keys |
 
-Cada proveedor guarda su propia clave, así que puedes configurar varios y
-cambiar entre ellos desde los ajustes sin volver a teclear nada.
+**Funciona sin configurar nada**: por defecto usa **Pollinations**, un servicio
+gratuito que no requiere clave, así que la extensión optimiza desde el primer
+momento. Es un servicio de terceros, por lo que la calidad y disponibilidad
+pueden variar; para mayor calidad/control, configura otro proveedor en los
+ajustes (cada uno guarda su propia clave y puedes alternar entre ellos).
 
 ## Instalación
 
@@ -45,7 +49,8 @@ Primero (opcional) regenera los iconos: `python3 tools/generate_icons.py`.
 
 1. Abre `about:debugging#/runtime/this-firefox`.
 2. **Cargar complemento temporal…** y selecciona el archivo `manifest.json`.
-3. Abre los ajustes de la extensión, elige proveedor y pega su API key.
+3. ¡Listo! Funciona sin clave (proveedor Pollinations por defecto). Para usar
+   otro proveedor, abre los ajustes, elígelo y pega su API key.
 
 > La carga temporal se borra al cerrar Firefox. Para una instalación
 > permanente hay que empaquetar y firmar el complemento en addons.mozilla.org.
@@ -55,7 +60,8 @@ Primero (opcional) regenera los iconos: `python3 tools/generate_icons.py`.
 1. Abre `chrome://extensions` (o `edge://extensions`).
 2. Activa el **Modo de desarrollador**.
 3. **Cargar descomprimida** y selecciona la carpeta del proyecto.
-4. Abre los ajustes (icono ✨), elige proveedor y pega su API key.
+4. ¡Listo! Funciona sin clave por defecto. Para otro proveedor, abre los
+   ajustes (icono ✨), elígelo y pega su API key.
 
 > Si la extensión no responde en una pestaña ya abierta, recárgala: los content
 > scripts se inyectan al cargar la página.
