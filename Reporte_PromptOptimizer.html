@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Prompt Optimizer — Reporte Estratégico</title>
+<style>
+  :root {
+    --violet: #6d5ef8;
+    --violet-d: #5b4cf0;
+    --purple: #8b5cf6;
+    --ink: #1f2330;
+    --muted: #6b7180;
+    --line: #e8e6f3;
+    --bg: #fbfbfe;
+    --card: #ffffff;
+    --soft: #f4f2fe;
+    --ok: #2f855a;
+    --warn: #b7791f;
+    --bad: #c53030;
+    --shadow: 0 10px 30px rgba(30, 20, 80, .08);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6; font-size: 15px;
+  }
+  a { color: var(--violet-d); }
+
+  /* Layout */
+  .topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,.92); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar-inner {
+    max-width: 1100px; margin: 0 auto; padding: 10px 20px;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; }
+  .logo {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--violet), var(--purple));
+    display: grid; place-items: center; color: #fff; font-size: 16px;
+  }
+  nav.tabs { display: flex; gap: 4px; flex-wrap: wrap; margin-left: auto; }
+  nav.tabs a {
+    text-decoration: none; color: var(--muted); font-size: 13px; font-weight: 600;
+    padding: 6px 10px; border-radius: 8px;
+  }
+  nav.tabs a:hover { background: var(--soft); color: var(--violet-d); }
+  nav.tabs a.active { background: var(--violet); color: #fff; }
+
+  header.hero {
+    background: linear-gradient(135deg, #6d5ef8, #8b5cf6);
+    color: #fff; padding: 54px 20px;
+  }
+  .hero-inner { max-width: 1100px; margin: 0 auto; }
+  .hero h1 { margin: 0 0 8px; font-size: 30px; }
+  .hero p { margin: 0; opacity: .95; max-width: 720px; }
+  .hero .meta { margin-top: 18px; font-size: 13px; opacity: .85; }
+  .pills { margin-top: 18px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill { background: rgba(255,255,255,.18); padding: 5px 11px; border-radius: 999px; font-size: 12.5px; font-weight: 600; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 10px 20px 60px; }
+  section { padding: 34px 0; border-bottom: 1px solid var(--line); scroll-margin-top: 70px; }
+  section h2 { font-size: 23px; margin: 0 0 4px; }
+  section .lead { color: var(--muted); margin: 0 0 20px; }
+  h3 { font-size: 17px; margin: 22px 0 8px; }
+
+  .grid { display: grid; gap: 16px; }
+  .grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 720px) { .grid.cols-2, .grid.cols-3 { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 18px; box-shadow: var(--shadow);
+  }
+  .card h4 { margin: 0 0 6px; font-size: 15px; }
+  .card p { margin: 0; color: var(--muted); font-size: 14px; }
+  .kpi { font-size: 26px; font-weight: 800; color: var(--violet-d); }
+
+  table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid var(--line); margin: 10px 0; font-size: 14px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--soft); font-size: 12.5px; text-transform: uppercase; letter-spacing: .03em; color: #4a4f60; }
+  tr:last-child td { border-bottom: none; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 700; }
+  .tag.free { background: #e6f7ee; color: var(--ok); }
+  .tag.paid { background: #fdeaea; color: var(--bad); }
+  .tag.win { background: #eef0ff; color: var(--violet-d); }
+
+  details { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 4px 16px; margin: 10px 0; }
+  details[open] { box-shadow: var(--shadow); }
+  summary { cursor: pointer; font-weight: 700; padding: 12px 0; list-style: none; display: flex; align-items: center; gap: 8px; }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: "+"; display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; background: var(--soft); color: var(--violet-d); font-weight: 800; }
+  details[open] summary::before { content: "\2212"; }
+  details .body { padding: 0 0 14px; }
+
+  .tabset { margin: 12px 0; }
+  .tabset .tabnav { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .tabset .tabnav button {
+    border: 1px solid var(--line); background: var(--card); color: var(--muted);
+    padding: 8px 14px; border-radius: 10px; font-weight: 700; font-size: 13.5px; cursor: pointer;
+  }
+  .tabset .tabnav button.active { background: var(--violet); color: #fff; border-color: var(--violet); }
+  .tabset .panel { display: none; }
+  .tabset .panel.active { display: block; }
+
+  /* Bar chart */
+  .chart { margin: 14px 0; }
+  .bar-row { display: grid; grid-template-columns: 180px 1fr 70px; align-items: center; gap: 12px; margin: 9px 0; }
+  .bar-track { background: var(--soft); border-radius: 8px; height: 26px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, var(--violet), var(--purple)); width: 0; transition: width 1s ease; }
+  .bar-fill.us { background: linear-gradient(90deg, #2f855a, #38a169); }
+  .bar-val { font-weight: 700; text-align: right; }
+  .bar-label { font-size: 13.5px; font-weight: 600; }
+  @media (max-width: 600px){ .bar-row{ grid-template-columns: 110px 1fr 56px; } }
+
+  .note { border-left: 4px solid var(--violet); background: var(--soft); padding: 12px 16px; border-radius: 0 10px 10px 0; margin: 14px 0; font-size: 14px; }
+  .note.warn { border-color: var(--warn); background: #fdf6e7; }
+  .note.ok { border-color: var(--ok); background: #e9f7ef; }
+  ul.clean { margin: 8px 0; padding-left: 20px; }
+  ul.clean li { margin: 5px 0; }
+  .src { font-size: 13px; color: var(--muted); word-break: break-word; }
+  .toolbar { display: flex; gap: 8px; margin: 8px 0 0; }
+  .btn { border: 1px solid var(--line); background: var(--card); color: var(--violet-d); border-radius: 9px; padding: 7px 12px; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .btn:hover { background: var(--soft); }
+  footer { max-width: 1100px; margin: 0 auto; padding: 30px 20px 60px; color: var(--muted); font-size: 13px; }
+  code { background: var(--soft); padding: 1px 6px; border-radius: 6px; font-size: 13px; }
+  .timeline { border-left: 2px solid var(--line); margin: 10px 0; padding-left: 18px; }
+  .timeline .step { position: relative; margin: 14px 0; }
+  .timeline .step::before { content: ""; position: absolute; left: -25px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--violet); }
+  @media print { .topbar, .toolbar { display: none; } details { box-shadow: none; } .tabset .panel { display: block !important; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand"><span class="logo">&#10022;</span> Prompt Optimizer</div>
+    <nav class="tabs" id="topnav">
+      <a href="#resumen">Resumen</a>
+      <a href="#extension">Extensi&oacute;n</a>
+      <a href="#proveedores">Proveedores</a>
+      <a href="#competencia">Competencia</a>
+      <a href="#monetizacion">Monetizaci&oacute;n</a>
+      <a href="#publicacion">Publicaci&oacute;n</a>
+      <a href="#rutinas">Rutinas</a>
+      <a href="#drive">Drive</a>
+      <a href="#fuentes">Fuentes</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="hero-inner">
+    <h1>Reporte Estrat&eacute;gico &mdash; Prompt Optimizer</h1>
+    <p>Extensi&oacute;n de navegador que transforma texto seleccionado en prompts optimizados con un clic derecho. Este reporte re&uacute;ne el estado del producto, an&aacute;lisis de competencia, estrategias de monetizaci&oacute;n, el proceso de publicaci&oacute;n y las rutinas de investigaci&oacute;n automatizadas.</p>
+    <div class="pills">
+      <span class="pill">Manifest V3</span>
+      <span class="pill">Firefox + Chrome/Edge</span>
+      <span class="pill">Multi-proveedor</span>
+      <span class="pill">Funciona sin clave</span>
+      <span class="pill">v0.4.0</span>
+    </div>
+    <div class="meta">Generado: mayo 2026 &middot; Repositorio: github.com/Edhdez1/extensiones</div>
+  </div>
+</header>
+
+<main>
+
+  <!-- RESUMEN -->
+  <section id="resumen">
+    <h2>Resumen ejecutivo</h2>
+    <p class="lead">Estado actual del proyecto y conclusiones clave.</p>
+    <div class="grid cols-3">
+      <div class="card"><div class="kpi">$0</div><h4>Costo de entrada para el usuario</h4><p>Funciona sin API key por defecto (proveedor Pollinations).</p></div>
+      <div class="card"><div class="kpi">5</div><h4>Proveedores de IA</h4><p>Pollinations (sin clave), OpenAI, Gemini, Groq, OpenRouter.</p></div>
+      <div class="card"><div class="kpi">$3&ndash;6</div><h4>Precio Pro sugerido / mes</h4><p>Por debajo de los competidores ($12&ndash;20/mes).</p></div>
+    </div>
+    <div class="note ok"><strong>Tesis:</strong> el flujo "selecciona &rarr; clic derecho &rarr; optimiza/reemplaza", el funcionamiento sin configuraci&oacute;n y el enfoque en el mercado hispano son diferenciadores reales frente a una competencia mayoritariamente atada a la interfaz de ChatGPT o a plataformas web de pago.</div>
+    <h3>Diferenciadores principales</h3>
+    <ul class="clean">
+      <li><strong>Funciona en cualquier web</strong> v&iacute;a clic derecho, no solo dentro de ChatGPT.</li>
+      <li><strong>Reemplazar in situ</strong>: sustituye el texto seleccionado sin copiar/pegar.</li>
+      <li><strong>Multi-proveedor con opciones gratis</strong> (Pollinations, Gemini, Groq, OpenRouter): el usuario no queda encerrado.</li>
+      <li><strong>Prompt en ingl&eacute;s con respuesta en tu idioma</strong>: &aacute;ngulo &uacute;til y poco explotado en el mercado hispano.</li>
+      <li><strong>Privacidad (BYOK)</strong>: la clave se guarda local, sin servidor intermedio.</li>
+    </ul>
+  </section>
+
+  <!-- EXTENSION -->
+  <section id="extension">
+    <h2>La extensi&oacute;n</h2>
+    <p class="lead">Funcionalidades implementadas (Fase 1 / MVP, versi&oacute;n 0.4.0).</p>
+    <div class="grid cols-2">
+      <div class="card"><h4>Optimizar por clic derecho</h4><p>Selecciona texto &rarr; men&uacute; contextual &rarr; &#8220;Optimizar como prompt&#8221;. Resultado en un panel flotante aislado (Shadow DOM).</p></div>
+      <div class="card"><h4>Reemplazar in situ</h4><p>Sustituye el texto seleccionado por el prompt optimizado en campos editables (usa el setter nativo para que React lo detecte). Se oculta en p&aacute;ginas de solo lectura.</p></div>
+      <div class="card"><h4>Copia autom&aacute;tica</h4><p>El resultado se copia al portapapeles y ofrece bot&oacute;n de copiar y vista del texto original.</p></div>
+      <div class="card"><h4>Prompt en ingl&eacute;s, respuesta en tu idioma</h4><p>Configurable: genera el prompt en ingl&eacute;s (mejor rendimiento) e instruye al modelo a responder en el idioma del texto original.</p></div>
+      <div class="card"><h4>Cross-browser</h4><p>Un solo c&oacute;digo para Firefox y Chrome/Edge mediante la clave dual de background (<code>service_worker</code> + <code>scripts</code>) y un shim de API.</p></div>
+      <div class="card"><h4>Ajustes simples</h4><p>Proveedor, API key (por proveedor), modelo, estilo (claridad / t&eacute;cnico / creativo) e idioma del prompt.</p></div>
+    </div>
+    <h3>Estado en el repositorio</h3>
+    <ul class="clean">
+      <li>PR #1 &mdash; MVP + cross-browser + multi-proveedor: <strong>fusionado</strong>.</li>
+      <li>PR #3 &mdash; Reemplazar, prompt en ingl&eacute;s, fix de modelos Gemini y proveedor sin clave por defecto: <strong>abierto (draft)</strong>.</li>
+    </ul>
+  </section>
+
+  <!-- PROVEEDORES -->
+  <section id="proveedores">
+    <h2>Proveedores de IA</h2>
+    <p class="lead">La extensi&oacute;n funciona sin configurar nada y permite cambiar de proveedor cuando se quiera.</p>
+    <table>
+      <thead><tr><th>Proveedor</th><th>Clave</th><th>Gratis</th><th>Notas</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Pollinations</strong> (por defecto)</td><td>No requiere</td><td><span class="tag free">S&iacute;</span></td><td>Servicio gratuito de terceros; calidad y disponibilidad variables. Endpoint legacy keyless (modelo <code>openai</code>).</td></tr>
+        <tr><td>OpenAI</td><td>sk-&hellip;</td><td><span class="tag paid">No</span></td><td>De pago; mayor calidad y control.</td></tr>
+        <tr><td>Google Gemini</td><td>API key</td><td><span class="tag free">S&iacute;</span></td><td>Capa gratuita. Modelos vigentes: <code>gemini-2.5-flash</code> / <code>flash-lite</code> / <code>pro</code>.</td></tr>
+        <tr><td>Groq</td><td>API key</td><td><span class="tag free">S&iacute;</span></td><td>Capa gratuita, muy r&aacute;pido.</td></tr>
+        <tr><td>OpenRouter</td><td>API key</td><td><span class="tag free">S&iacute;</span></td><td>Incluye modelos con sufijo <code>:free</code>.</td></tr>
+      </tbody>
+    </table>
+    <div class="note warn"><strong>Fix aplicado:</strong> Google retir&oacute; los modelos Gemini 1.5 y 2.0 (error &#8220;model not found for generateContent&#8221;). Se actualiz&oacute; a los modelos 2.5 y se a&ntilde;adi&oacute; una salvaguarda: si un modelo guardado deja de existir, la extensi&oacute;n cae al modelo por defecto en lugar de fallar.</div>
+    <div class="note"><strong>Por qu&eacute; no se embebe una clave gratis compartida:</strong> el c&oacute;digo de una extensi&oacute;n se descarga completo a cada usuario, as&iacute; que la clave ser&iacute;a extra&iacute;ble; su cupo gratuito se compartir&iacute;a entre todos (se agota al instante), cualquiera podr&iacute;a abusarla y el proveedor la baneara &mdash; adem&aacute;s viola los t&eacute;rminos. La alternativa robusta es un proxy propio (ver Monetizaci&oacute;n, Camino B).</div>
+  </section>
+
+  <!-- COMPETENCIA -->
+  <section id="competencia">
+    <h2>An&aacute;lisis de competencia</h2>
+    <p class="lead">Principales herramientas del mercado y c&oacute;mo se posiciona Prompt Optimizer.</p>
+
+    <h3>Comparativa de precios (plan principal, USD/mes)</h3>
+    <div class="chart" id="priceChart">
+      <div class="bar-row"><span class="bar-label">Prompt Optimizer (sug.)</span><div class="bar-track"><div class="bar-fill us" data-pct="25"></div></div><span class="bar-val">$5</span></div>
+      <div class="bar-row"><span class="bar-label">Promptimize Pro</span><div class="bar-track"><div class="bar-fill" data-pct="60"></div></div><span class="bar-val">$12</span></div>
+      <div class="bar-row"><span class="bar-label">PromptPerfect</span><div class="bar-track"><div class="bar-fill" data-pct="100"></div></div><span class="bar-val">$19.99</span></div>
+      <div class="bar-row"><span class="bar-label">AIPRM Plus</span><div class="bar-track"><div class="bar-fill" data-pct="100"></div></div><span class="bar-val">$20</span></div>
+    </div>
+    <p class="src">PromptPerfect ofrece adem&aacute;s un plan Pro Max de $99.99/mes (fuera de escala). Cifras seg&uacute;n fuentes citadas (secci&oacute;n Fuentes).</p>
+
+    <h3>Detalle por competidor</h3>
+    <details>
+      <summary>Promptimize AI &mdash; competidor m&aacute;s directo</summary>
+      <div class="body">
+        <p>Extensi&oacute;n de navegador con bot&oacute;n &#8220;enhance&#8221; que transforma prompts. Funciona con ChatGPT, Claude y Gemini.</p>
+        <ul class="clean">
+          <li><strong>Precio:</strong> gratis 10 mejoras/d&iacute;a; Pro $12/mes.</li>
+          <li><strong>Debilidad explotable:</strong> atada a las interfaces de chat; sin &#8220;responder en tu idioma&#8221;; un proveedor por uso.</li>
+        </ul>
+      </div>
+    </details>
+    <details>
+      <summary>AIPRM &mdash; librer&iacute;a de plantillas</summary>
+      <div class="body">
+        <p>M&aacute;s de 4.500 plantillas creadas por la comunidad, centrado en ChatGPT.</p>
+        <ul class="clean">
+          <li><strong>Precio:</strong> gratis; Plus $20/mes ($16.67 anual).</li>
+          <li><strong>Debilidad explotable:</strong> es librer&iacute;a de plantillas, no &#8220;optimiza tu texto&#8221;; muy ligado a ChatGPT.</li>
+        </ul>
+      </div>
+    </details>
+    <details>
+      <summary>PromptPerfect (Jina) &mdash; optimizador web</summary>
+      <div class="body">
+        <p>Optimizador de prompts basado en web.</p>
+        <ul class="clean">
+          <li><strong>Precio:</strong> $19.99/mes; Pro Max $99.99/mes.</li>
+          <li><strong>Debilidad explotable:</strong> no tiene extensi&oacute;n de navegador; precio alto.</li>
+        </ul>
+      </div>
+    </details>
+    <details>
+      <summary>Otros (Prompt Genie, TaoPrompt, PromptHero)</summary>
+      <div class="body"><p>Asistentes y librer&iacute;as de prompts; m&aacute;s orientados a plataformas web que a un flujo de un clic dentro de cualquier p&aacute;gina.</p></div>
+    </details>
+
+    <h3>Posicionamiento de Prompt Optimizer</h3>
+    <table>
+      <thead><tr><th>Aspecto</th><th>Prompt Optimizer</th><th>Promptimize</th><th>AIPRM</th><th>PromptPerfect</th></tr></thead>
+      <tbody>
+        <tr><td>Funciona en cualquier web</td><td><span class="tag win">S&iacute;</span></td><td>Limitado a chats</td><td>ChatGPT</td><td>Web aparte</td></tr>
+        <tr><td>Reemplazar in situ</td><td><span class="tag win">S&iacute;</span></td><td>No</td><td>No</td><td>No</td></tr>
+        <tr><td>Opci&oacute;n gratis sin clave</td><td><span class="tag win">S&iacute;</span></td><td>10/d&iacute;a</td><td>L&iacute;mite</td><td>No</td></tr>
+        <tr><td>Respuesta en tu idioma</td><td><span class="tag win">S&iacute;</span></td><td>No</td><td>No</td><td>No</td></tr>
+        <tr><td>Precio Pro/mes</td><td>$3&ndash;6 (sug.)</td><td>$12</td><td>$20</td><td>$19.99</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- MONETIZACION -->
+  <section id="monetizacion">
+    <h2>Monetizaci&oacute;n</h2>
+    <p class="lead">El modelo actual es BYOK (cada usuario pone su clave). Eso define dos caminos.</p>
+
+    <div class="tabset" data-tabset>
+      <div class="tabnav">
+        <button class="active" data-tab="a">Camino A &mdash; Freemium BYOK</button>
+        <button data-tab="b">Camino B &mdash; Clave gestionada</button>
+        <button data-tab="otros">Otras palancas</button>
+      </div>
+      <div class="panel active" data-panel="a">
+        <div class="note ok"><strong>Recomendado para empezar.</strong> Bajo costo, sin backend, lanzamiento r&aacute;pido.</div>
+        <ul class="clean">
+          <li>T&uacute; <strong>no pagas la IA</strong> (la paga el usuario con su clave) &rarr; costo de operaci&oacute;n casi cero.</li>
+          <li><strong>Gratis:</strong> optimizaci&oacute;n b&aacute;sica. <strong>Pro:</strong> historial con b&uacute;squeda, plantillas/estilos personalizados, comparaci&oacute;n lado a lado, puntuaci&oacute;n de calidad, sincronizaci&oacute;n.</li>
+          <li><strong>Cobro:</strong> ExtensionPay (Chrome + Firefox) o licencias v&iacute;a Gumroad/Stripe.</li>
+          <li><strong>Precio:</strong> $3&ndash;6/mes o pago &uacute;nico $15&ndash;25.</li>
+        </ul>
+      </div>
+      <div class="panel" data-panel="b">
+        <div class="note warn"><strong>Mayor ingreso potencial, mayor complejidad.</strong> T&uacute; asumes el costo de API.</div>
+        <ul class="clean">
+          <li>T&uacute; provees la IA mediante un backend/proxy con tu clave.</li>
+          <li><strong>Gratis:</strong> X optimizaciones/mes. <strong>Pro:</strong> ilimitado.</li>
+          <li>Cero fricci&oacute;n para el usuario (no necesita conseguir clave), pero requiere backend, control de abuso y m&aacute;rgenes. Es el modelo de Promptimize ($12/mes).</li>
+        </ul>
+      </div>
+      <div class="panel" data-panel="otros">
+        <ul class="clean">
+          <li><strong>Team/Empresa:</strong> varios asientos.</li>
+          <li><strong>Lifetime para early adopters:</strong> ingreso inicial.</li>
+          <li><strong>Cu&ntilde;a de mercado hispano:</strong> marketing enfocado a un segmento poco atendido.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note"><strong>Recomendaci&oacute;n:</strong> lanzar con <strong>Camino A</strong> (freemium BYOK) &mdash; r&aacute;pido, barato y sin infraestructura &mdash; y, si crece la demanda, a&ntilde;adir un tier &#8220;gestionado&#8221; (Camino B) como conveniencia premium.</div>
+  </section>
+
+  <!-- PUBLICACION -->
+  <section id="publicacion">
+    <h2>Publicaci&oacute;n en tiendas</h2>
+    <p class="lead">Proceso para Firefox (principal) y Chrome/Edge.</p>
+
+    <div class="tabset" data-tabset>
+      <div class="tabnav">
+        <button class="active" data-tab="ff">Firefox (AMO)</button>
+        <button data-tab="cr">Chrome Web Store</button>
+      </div>
+      <div class="panel active" data-panel="ff">
+        <div class="note ok">Publicar en AMO es <strong>gratis</strong> (sin cuota de registro ni por extensi&oacute;n).</div>
+        <div class="timeline">
+          <div class="step">Crea una cuenta gratuita de Mozilla.</div>
+          <div class="step">Developer Hub &rarr; <em>Submit a New Add-on</em>; sube el <code>.zip</code>.</div>
+          <div class="step">Elige distribuci&oacute;n &#8220;On this site&#8221; (listada) o autodistribuci&oacute;n.</div>
+          <div class="step">Revisi&oacute;n autom&aacute;tica + posible revisi&oacute;n manual (por permisos sensibles). El c&oacute;digo no est&aacute; minificado, as&iacute; que no deber&iacute;an pedir build especial.</div>
+          <div class="step">AMO firma el complemento. La instalaci&oacute;n permanente requiere esa firma (la carga temporal es solo para pruebas).</div>
+        </div>
+      </div>
+      <div class="panel" data-panel="cr">
+        <div class="note warn">Requiere una cuota de registro de <strong>$5 USD, &uacute;nica</strong> (cubre hasta 20 extensiones).</div>
+        <div class="timeline">
+          <div class="step">Reg&iacute;strate en el Developer Dashboard y paga los $5.</div>
+          <div class="step">Empaqueta un <code>.zip</code> con el <code>manifest.json</code> en la ra&iacute;z.</div>
+          <div class="step">Prepara recursos: icono 128px, 1&ndash;5 capturas, descripci&oacute;n, categor&iacute;a, <strong>pol&iacute;tica de privacidad (URL obligatoria)</strong> y justificaci&oacute;n de permisos.</div>
+          <div class="step">Sube, completa la ficha y env&iacute;a a revisi&oacute;n (de d&iacute;as a un par de semanas).</div>
+        </div>
+      </div>
+    </div>
+    <div class="note"><strong>Pendiente antes de publicar:</strong> redactar una <strong>pol&iacute;tica de privacidad</strong> (ambas tiendas la exigen): la clave y los ajustes se guardan localmente; el texto seleccionado se env&iacute;a solo al proveedor elegido; no hay servidores propios.</div>
+  </section>
+
+  <!-- RUTINAS -->
+  <section id="rutinas">
+    <h2>Rutinas automatizadas</h2>
+    <p class="lead">Dos tareas programadas (claude.ai/code/scheduled) que corren los lunes por la noche. Todo el contenido se guarda en Markdown en la carpeta de Drive &#8220;Promts investigaci&oacute;n&#8221;.</p>
+
+    <div class="note warn"><strong>Regla central:</strong> queda rotundamente prohibido inventar. Cada dato lleva URL + fecha; lo no verificable se marca como &#8220;No encontrado en fuentes verificables&#8221;.</div>
+
+    <div class="grid cols-2">
+      <div class="card">
+        <h4>Rutina 1 &mdash; Investigaci&oacute;n de t&eacute;cnicas de prompts</h4>
+        <p>Lunes 22:00 &middot; Claude Sonnet 4.6 &middot; Google Drive.</p>
+        <ul class="clean">
+          <li>Barrido semanal de novedades (proveedores oficiales, papers, comunidad).</li>
+          <li>Deep-dive rotativo por semana: guías oficiales &rarr; razonamiento/papers &rarr; agentes &rarr; seguridad.</li>
+          <li>Salida: <code>Investigacion_Tecnicas_Prompts_[fecha].md</code>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Rutina 2 &mdash; Mejora de la extensi&oacute;n</h4>
+        <p>Lunes 23:30 &middot; Claude Opus 4.7 &middot; Google Drive + repo Edhdez1/extensiones.</p>
+        <ul class="clean">
+          <li>Lee el reporte de la Rutina 1 y el <code>src/styles.js</code> actual.</li>
+          <li>Propone cambios concretos (diffs) a los meta-prompts, con fuente y riesgo.</li>
+          <li>Salida: reporte <code>Mejoras_Extension_[fecha].md</code> y, si procede, un PR en draft (nunca merge).</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Configuraci&oacute;n para programarlas</h3>
+    <table>
+      <thead><tr><th></th><th>Rutina 1</th><th>Rutina 2</th></tr></thead>
+      <tbody>
+        <tr><td>Modelo</td><td>Claude Sonnet 4.6</td><td>Claude Opus 4.7</td></tr>
+        <tr><td>Horario</td><td>Weekly &rarr; Monday &rarr; 22:00</td><td>Weekly &rarr; Monday &rarr; 23:30</td></tr>
+        <tr><td>Connectors</td><td>Google Drive</td><td>Google Drive</td></tr>
+        <tr><td>Repositorio</td><td>(opcional)</td><td>Edhdez1/extensiones</td></tr>
+      </tbody>
+    </table>
+    <div class="note">El orden importa: la Rutina 2 corre despu&eacute;s para leer el reporte fresco de la Rutina 1. Los documentos de ambas rutinas ya est&aacute;n guardados en la carpeta de Drive.</div>
+  </section>
+
+  <!-- DRIVE -->
+  <section id="drive">
+    <h2>Documentos en Drive (generaci&oacute;n de prompts)</h2>
+    <p class="lead">Resultado de la investigaci&oacute;n de tu Drive: qu&eacute; sirve y qu&eacute; es redundante.</p>
+    <table>
+      <thead><tr><th>Documento</th><th>Utilidad</th></tr></thead>
+      <tbody>
+        <tr><td>Arquitectura y Estructura de Prompts (Edici&oacute;n 2026)</td><td><span class="tag win">Alta</span> Referencia estructurada (capas, posicionamiento, delimitadores, CoT/ToT, par&aacute;metros, seguridad). Con citas.</td></tr>
+        <tr><td>Ingenier&iacute;a de Prompts y el Estado de la IA</td><td><span class="tag win">Alta</span> Panorama y tabla de t&eacute;cnicas. <strong>Duplicado</strong> (borrar una copia).</td></tr>
+        <tr><td>Estructura y Arquitectura de Prompts (anterior)</td><td>Redundante (cubierto por la Edici&oacute;n 2026).</td></tr>
+        <tr><td>Prompts usados en el v&iacute;deo (3) + PDF</td><td>Ejemplos t&aacute;cticos, no t&eacute;cnicas.</td></tr>
+        <tr><td>MASTER-PROMPT V2.zip / INSTRUCCIONES NOTEBOOKLM</td><td>Tangenciales (zip no legible / uso de NotebookLM).</td></tr>
+      </tbody>
+    </table>
+    <div class="note ok">Las plantillas existentes <code>PROMPT_Rutina_*</code> de PolyPaw sirvieron de modelo para crear las dos rutinas nuevas, manteniendo tu formato.</div>
+  </section>
+
+  <!-- FUENTES -->
+  <section id="fuentes">
+    <h2>Fuentes</h2>
+    <p class="lead">Referencias verificables usadas para competencia, monetizaci&oacute;n, publicaci&oacute;n y modelos.</p>
+    <ol class="clean src">
+      <li>Gemini API Free Tier guide 2026 &mdash; yingtu.ai/en/blog/gemini-api-free-tier</li>
+      <li>Gemini API free tier changes April 2026 &mdash; help.apiyi.com/en/google-gemini-api-free-tier-changes-april-2026-guide-en.html</li>
+      <li>Models | Gemini API | Google AI for Developers &mdash; ai.google.dev/gemini-api/docs/models</li>
+      <li>Best Prompt Management Chrome Extensions 2026 &mdash; spaceprompts.com/blog/best-prompt-management-chrome-extensions</li>
+      <li>Top AIPRM Alternatives 2026 &mdash; topai.tools/alternatives/aiprm</li>
+      <li>PromptPerfect &mdash; promptperfect.jina.ai</li>
+      <li>How to Monetize a Chrome Extension in 2026 &mdash; dodopayments.com/blogs/monetize-chrome-extension</li>
+      <li>ExtensionPay &mdash; extensionpay.com</li>
+      <li>Mastering Firefox AMO Monetization 2026 &mdash; addonpay.com/firefox-amo-monetization-2026</li>
+      <li>Chrome Web Store Developer Fee 2026 &mdash; extensionradar.com/blog/chrome-web-store-developer-fee-2026</li>
+      <li>Submitting an add-on (Firefox Extension Workshop) &mdash; extensionworkshop.com/documentation/publish/submitting-an-add-on</li>
+      <li>Pollinations (plataforma open-source GenAI) &mdash; github.com/pollinations/pollinations</li>
+    </ol>
+    <p class="src">Las cifras de precios y modelos pueden cambiar; las rutinas semanales mantienen esta informaci&oacute;n actualizada con fuentes citadas.</p>
+  </section>
+
+</main>
+
+<footer>
+  <div class="toolbar">
+    <button class="btn" onclick="window.print()">Imprimir / Guardar PDF</button>
+    <button class="btn" id="toggleAll">Expandir / colapsar todo</button>
+  </div>
+  <p>Reporte estrat&eacute;gico de Prompt Optimizer &middot; Generado mayo 2026 &middot; Documento autónomo (sin dependencias externas).</p>
+</footer>
+
+<script>
+  // Tabs
+  document.querySelectorAll('[data-tabset]').forEach(function (set) {
+    var buttons = set.querySelectorAll('.tabnav button');
+    var panels = set.querySelectorAll('.panel');
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        buttons.forEach(function (b) { b.classList.remove('active'); });
+        panels.forEach(function (p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        set.querySelector('[data-panel="' + btn.dataset.tab + '"]').classList.add('active');
+      });
+    });
+  });
+
+  // Nav active highlight
+  var navLinks = document.querySelectorAll('#topnav a');
+  var sections = Array.prototype.map.call(navLinks, function (a) {
+    return document.querySelector(a.getAttribute('href'));
+  });
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        var id = e.target.id;
+        navLinks.forEach(function (a) {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(function (s) { if (s) obs.observe(s); });
+
+  // Animate bars when visible
+  var chart = document.getElementById('priceChart');
+  if (chart) {
+    var fired = false;
+    var cObs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting && !fired) {
+          fired = true;
+          chart.querySelectorAll('.bar-fill').forEach(function (f) {
+            f.style.width = f.dataset.pct + '%';
+          });
+        }
+      });
+    }, { threshold: .3 });
+    cObs.observe(chart);
+  }
+
+  // Expand / collapse all
+  document.getElementById('toggleAll').addEventListener('click', function () {
+    var all = document.querySelectorAll('details');
+    var anyClosed = Array.prototype.some.call(all, function (d) { return !d.open; });
+    all.forEach(function (d) { d.open = anyClosed; });
+  });
+</script>
+
+</body>
+</html>
