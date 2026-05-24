@@ -141,7 +141,7 @@
         baseUrl: "https://openrouter.ai/api/v1",
         extraHeaders: {
           "HTTP-Referer": "https://github.com/Edhdez1/extensiones",
-          "X-Title": "Prompt Optimizer",
+          "X-Title": "Promptisma",
         },
       }),
     },

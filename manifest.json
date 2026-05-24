@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Prompt Optimizer",
+  "name": "Promptisma — Optimizador de Prompts",
   "version": "0.4.1",
-  "description": "Selecciona texto en cualquier plataforma de IA y transfórmalo en un prompt optimizado y estructurado con un clic derecho. Funciona sin clave por defecto; compatible con OpenAI, Gemini, Groq y OpenRouter.",
+  "description": "Optimiza cualquier texto como prompt con un clic derecho. Funciona gratis sin clave; compatible con OpenAI, Gemini, Groq y más.",
   "permissions": ["contextMenus", "storage", "notifications"],
   "host_permissions": [
     "https://text.pollinations.ai/*",
@@ -24,7 +24,7 @@
   ],
   "action": {
     "default_popup": "src/popup.html",
-    "default_title": "Prompt Optimizer",
+    "default_title": "Promptisma",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",

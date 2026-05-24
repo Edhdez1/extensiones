@@ -62,7 +62,7 @@ function notify(message) {
   api.notifications.create({
     type: "basic",
     iconUrl: api.runtime.getURL("icons/icon128.png"),
-    title: "Prompt Optimizer",
+    title: "Promptisma",
     message,
   });
 }
@@ -76,7 +76,7 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
   const reachable = await sendToTab(tab.id, { type: "show-loading" });
   if (!reachable) {
     notify(
-      "Recarga la página para activar Prompt Optimizer y vuelve a intentarlo."
+      "Recarga la página para activar Promptisma y vuelve a intentarlo."
     );
     return;
   }

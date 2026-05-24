@@ -1,4 +1,4 @@
-# Prompt Optimizer
+# Promptisma
 
 Extensión de navegador (**Firefox**, Chrome y Edge — Manifest V3) que convierte
 texto seleccionado en cualquier página en un **prompt optimizado y estructurado**

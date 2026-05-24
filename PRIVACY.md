@@ -1,8 +1,8 @@
-# Política de Privacidad — Prompt Optimizer
+# Política de Privacidad — Promptisma
 
 **Última actualización:** 24 de mayo de 2026
 
-Prompt Optimizer es una extensión de navegador que transforma el texto que
+Promptisma es una extensión de navegador que transforma el texto que
 seleccionas en un prompt optimizado, usando el proveedor de IA que tú elijas.
 Esta política explica qué datos se manejan y cómo.
 
