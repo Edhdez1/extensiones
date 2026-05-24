@@ -21,7 +21,7 @@
 Reglas:
 - Conserva la intención y todos los datos concretos del texto original (nombres, cifras, restricciones).
 - No inventes requisitos que el usuario no expresó ni respondas la petición: solo reescribe el prompt.
-- Da contexto, define el objetivo y, cuando aporte, especifica el formato de salida esperado.
+- Da contexto mínimo pero suficiente, define el objetivo y, solo cuando aporte claridad real, especifica el formato de salida esperado.
 ${languageClause(mode)}
 - Usa un lenguaje preciso y sin ambigüedades.
 - Devuelve ÚNICAMENTE el prompt optimizado, sin comillas, sin explicaciones ni encabezados como "Prompt:".`;
@@ -41,14 +41,21 @@ ${languageClause(mode)}
       description:
         "Optimiza para tareas técnicas con requisitos y restricciones explícitos.",
       emphasis:
-        "Prioriza la PRECISIÓN TÉCNICA: define entradas, salidas, restricciones y criterios de aceptación. Usa terminología exacta y enumera requisitos verificables.",
+        "Prioriza la PRECISIÓN TÉCNICA: define entradas, salidas, restricciones y criterios de aceptación. Usa terminología exacta y enumera requisitos verificables. Para tareas de código o análisis técnico, incluye en el prompt que el modelo declare premisas explícitas, rastree pasos de razonamiento y derive conclusiones formales antes de responder.",
     },
     creative: {
       label: "Creatividad",
       description:
         "Optimiza para tareas creativas dando tono, estilo y libertad guiada.",
       emphasis:
-        "Prioriza la CREATIVIDAD: especifica tono, estilo, público y ejemplos de referencia, dejando espacio para la exploración pero manteniendo el objetivo claro.",
+        "Prioriza la CREATIVIDAD: especifica tono, estilo y público; añade ejemplos de referencia solo si el usuario los mencionó o si son estrictamente necesarios para acotar el estilo; deja espacio para la exploración pero mantén el objetivo claro.",
+    },
+    precision: {
+      label: "Alta precisión",
+      description:
+        "Para instrucciones críticas que deben cumplirse al pie de la letra (estructura de razonamiento en 4 fases).",
+      emphasis:
+        "Prioriza el SEGUIMIENTO EXACTO de instrucciones: estructura el prompt para que el modelo (1) reformule lo que se le pide, (2) considere enfoques alternativos, (3) revise críticamente el más adecuado y (4) solo entonces entregue la respuesta final. Úsalo cuando cumplir cada requisito sea más importante que la brevedad.",
     },
   };
 

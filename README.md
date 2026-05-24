@@ -23,7 +23,8 @@ con un clic derecho, usando el proveedor de IA que elijas.
   agote el saldo de otra.
 - Compatible con **Firefox y Chrome/Edge** con un único código base.
 - Ajustes simples: proveedor, API key (por proveedor), modelo, estilo de
-  optimización (claridad, precisión técnica, creatividad) e idioma del prompt.
+  optimización (claridad, precisión técnica, creatividad, alta precisión) e
+  idioma del prompt.
 
 ## Proveedores soportados
 

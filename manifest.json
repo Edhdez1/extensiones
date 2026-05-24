@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Prompt Optimizer",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Selecciona texto en cualquier plataforma de IA y transfórmalo en un prompt optimizado y estructurado con un clic derecho. Funciona sin clave por defecto; compatible con OpenAI, Gemini, Groq y OpenRouter.",
   "permissions": ["contextMenus", "storage", "notifications"],
   "host_permissions": [
