@@ -55,10 +55,14 @@ function onProviderChange() {
   const id = providerSelect.value;
   const cfg = PROVIDERS[id];
 
+  // Si el modelo guardado ya no existe (p. ej. fue retirado), usa el por defecto.
+  const selectedModel = cfg.models.includes(models[id]) ? models[id] : cfg.models[0];
+  models[id] = selectedModel;
+
   fillSelect(
     modelSelect,
     cfg.models.map((m) => [m, m]),
-    models[id] || cfg.models[0]
+    selectedModel
   );
 
   apiKeyInput.value = keys[id] || "";

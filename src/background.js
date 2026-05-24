@@ -39,9 +39,10 @@ async function getSettings() {
     ]);
   const activeProvider = provider && PROVIDERS[provider] ? provider : DEFAULT_PROVIDER;
   const cfg = PROVIDERS[activeProvider];
+  const storedModel = models && models[activeProvider];
   return {
     provider: activeProvider,
-    model: (models && models[activeProvider]) || cfg.models[0],
+    model: cfg.models.includes(storedModel) ? storedModel : cfg.models[0],
     apiKey: (keys && keys[activeProvider]) || "",
     style: style || DEFAULT_STYLE,
     promptLanguage: promptLanguage || DEFAULT_PROMPT_LANGUAGE,
