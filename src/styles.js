@@ -21,8 +21,9 @@
 Reglas:
 - Conserva la intención y todos los datos concretos del texto original (nombres, cifras, restricciones).
 - No inventes requisitos que el usuario no expresó ni respondas la petición: solo reescribe el prompt.
-- Da contexto mínimo pero suficiente, define el objetivo y, solo cuando aporte claridad real, especifica el formato de salida esperado.
+- Da contexto mínimo pero suficiente, define el objetivo y, solo cuando aporte claridad real, especifica el formato de salida esperado. No acumules instrucciones redundantes: cada capa extra de especificación puede reducir el rendimiento del modelo.
 ${languageClause(mode)}
+- Cuando una instrucción del prompt deba aplicarse a todo el output, decláralo de forma explícita (p.ej. "en todas las secciones" o "para cada elemento de la lista") para evitar que el modelo aplique la regla solo al primer bloque.
 - Usa un lenguaje preciso y sin ambigüedades.
 - Devuelve ÚNICAMENTE el prompt optimizado, sin comillas, sin explicaciones ni encabezados como "Prompt:".`;
   }
@@ -41,7 +42,7 @@ ${languageClause(mode)}
       description:
         "Optimiza para tareas técnicas con requisitos y restricciones explícitos.",
       emphasis:
-        "Prioriza la PRECISIÓN TÉCNICA: define entradas, salidas, restricciones y criterios de aceptación. Usa terminología exacta y enumera requisitos verificables. Para tareas de código o análisis técnico, incluye en el prompt que el modelo declare premisas explícitas, rastree pasos de razonamiento y derive conclusiones formales antes de responder.",
+        "Prioriza la PRECISIÓN TÉCNICA: define entradas, salidas, restricciones y criterios de aceptación. Usa terminología exacta y enumera requisitos verificables. Para tareas de código o análisis técnico, incluye en el prompt que el modelo declare premisas explícitas, rastree pasos de razonamiento y derive conclusiones formales antes de responder. Si la tarea involucra herramientas, APIs o sistemas agénticos, estructura el prompt con: (1) objetivo de la tarea, (2) herramientas disponibles y condiciones para invocar cada una, (3) contrato de salida esperado y (4) plan de recuperación ante errores.",
     },
     creative: {
       label: "Creatividad",
